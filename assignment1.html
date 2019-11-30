@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>HTML5 tutorial - Zoom on Click</title>
+
+    <style>
+        canvas {
+            background: url(house-map.jpg);
+            background-size: cover;
+        }
+    
+        img,
+        canvas {
+            display: block;
+            border: solid 1px;
+            margin: 1em auto;
+        }
+    </style>
+
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+
+    <script type="application/javascript">
+        function render() {
+            var startScale = 1;
+            var scale = startScale;
+            var elementId = document.getElementById("appCanvas")
+            var ctx = elementId.getContext("2d")
+            var width = ctx.canvas.width;
+            var height = ctx.canvas.height;
+            var intervalId;
+
+            let x = 50
+            let y = 50
+            let cWidth = 25
+            let cHeight = 0
+
+            let workWidth = {
+                    start: x,
+                    end: x + cWidth
+                }
+            let workHeight = {
+                    start: y,
+                    end: y + cHeight
+                }
+
+            ctx.arc(x, y, cWidth, cHeight, Math.PI * 2, false);
+            ctx.fill();
+
+            var imageData = ctx.getImageData(0, 0, width, height);
+            var copiedCanvas = $("<canvas>").attr("width", width).attr("height", height)[0];
+            copiedCanvas.getContext("2d").putImageData(imageData, 0, 0);
+
+            function drawContents() {
+                var newWidth = width * scale;
+                var newHeight = height * scale;
+
+                ctx.save();
+                ctx.translate(-((newWidth - width) / 2), -((newHeight - height) / 2));
+                ctx.scale(scale, scale);
+                ctx.clearRect(0, 0, width, height);
+                ctx.drawImage(copiedCanvas, 0, 0);
+                ctx.restore();
+            }
+            $('#zoomOutBtn').click(function () {
+                 var GFG = document.getElementById("appCanvas");
+                var currWidth = GFG.clientWidth;
+                GFG.style.width = (currWidth - 100) + "px";
+                // zoomValue = 100
+
+                clearInterval(intervalId);
+                intervalId = function() {
+                    if (scale <= startScale) {
+                        clearInterval(intervalId);
+                    }
+                    scale = scale - 0.1;
+                    drawContents();
+                }   
+            })
+            $('#zoomInBtn').click(function () {
+                var GFG = document.getElementById("appCanvas");
+                var currWidth = GFG.clientWidth;
+                GFG.style.width = (currWidth + 100) + "px";
+                // zoomValue = 100
+
+                clearInterval(intervalId);
+                intervalId = function () {
+                    if (scale <= startScale) {
+                        clearInterval(intervalId);
+                    }
+                    scale = scale + 0.1;
+                    drawContents();
+                }
+            })
+            
+            // listening event
+            $('#appCanvas').click(function (e) {
+                console.log('click', e.offsetX, e.offsetY)
+                console.log('work width =>', workWidth )
+                console.log('work height', workHeight)
+               
+            });
+
+        }
+    </script>
+</head>
+<body onload="render()">
+    <canvas id="appCanvas" width="640" height="425"></canvas>
+
+    <button id="zoomInBtn">Zoom In</button>
+    <button id="zoomOutBtn">Zoom out</button>
+
+</body>
+</html>
