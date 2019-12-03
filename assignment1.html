@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Assignment | darvis</title>
+
+    <style>
+         body {
+            position: relative;
+            background: rgba(255, 246, 243, 0.18);
+            text-align: center
+        }
+        .container {
+            position: relative;   
+        }
+        button {
+            border: 0;
+            font-weight: 600;
+            font-size: 20px;
+            background: transparent;
+            padding: 0px 10px 2px;
+            color: #7da6fc;
+            border: 2px solid #7da6fc;
+        }
+        #zoomInBtn {
+            color: #a23003;
+            border: 2px solid #a23003;
+            padding: 0px 7px 1px;
+        }
+        img,
+        canvas,
+        .container {
+            display: block;
+            margin: 1em auto;
+        }
+        canvas{
+            box-shadow: 1px 0 6px #e9e9e987;
+            background-color: #fff;
+        }
+        #tooltip:before {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 5px solid black;
+            top: -5px;
+            position: absolute;
+        }
+        #tooltip {
+            background: black;
+            padding: 10px;
+            color: white;
+        }
+    </style>
+
+    <script type="application/javascript"">
+        const data = [
+            {
+                x: 200,
+                y: 100,
+                radius: 25,
+                id: 'Room 1',
+                title: 'Bed Room',
+                detail: '11 feet wide and 11 1/4 feet long',
+                color: '#9f360c',
+                dimensions: {}
+            },
+            {
+                x: 550,
+                y: 80,
+                radius: 25,
+                id: 'Room 2',
+                title: 'Drawing Room',
+                detail: '11 feet wide and 12 feet long',
+                color: '#c74510',
+                dimensions: {}
+            },
+            {
+                x: 180,
+                y: 320,
+                radius: 25,
+                id: 'Room 3',
+                title: 'Master Room',
+                detail: '16 feet wide and 11 1/4 feet long',
+                color: '#9f360c',
+                dimensions: {}
+            }
+        ];
+
+        window.onload = function () {
+            let canvas = document.getElementById("appCanvas");
+            let context = canvas.getContext("2d");
+
+            image = new Image();
+            image.src = "./house-map.jpg";
+            function draw(scale) {
+                // let canvas = document.getElementById("appCanvas");
+                // let context = canvas.getContext("2d");
+                // clear canvas
+
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.scale(scale, scale);
+                context.drawImage(image, 0, 0, canvas.width, canvas.height);
+                data.forEach(function (item) {
+                    drawPoint(context, item.x, item.y, item.radius, item.id, item.color)
+                    item.x = item.x*scale
+                    item.y = item.y*scale
+                    item.radius = item.radius*scale
+                    item.dimensions = {
+                        left: item.x - item.radius,
+                        right: item.x + item.radius,
+                        top: item.y - item.radius,
+                        bottom: item.y + item.radius
+                    }
+                })
+            }
+            function drawPoint(context, x, y, radius, id, color) {
+                context.beginPath();
+                context.arc(x, y, radius, 0, 2 * Math.PI, true);
+                context.fillStyle = color;
+                context.fill();
+                context.lineWidth = 2;
+                context.fillStyle = "white";
+                context.font = "Arial";
+                context.textAlign = "center";
+                context.fillText(id, x, y);
+            }
+
+            // Add button event listeners on button click
+            document.getElementById("zoomInBtn").addEventListener(
+                "click",
+                function () {
+                    draw(1.2);
+                },
+                false
+            );
+
+            document.getElementById("zoomOutBtn").addEventListener(
+                "click",
+                function () {
+                    draw(0.8);
+                },
+                false
+            );
+
+            // add Event Listener for click event
+            document.getElementById("appCanvas").addEventListener("click", function (e) {
+                let clickedX = e.layerX;
+                let clickedY = e.layerY;
+                for (let i = 0; i < data.length; i++) {
+                    let {left, right, top, bottom} = data[i].dimensions
+                    if ( clickedX < right && clickedX > left && clickedY > top && clickedY < bottom ) {
+                        showTooltip(data[i])
+                    }
+                }
+            });
+
+            function showTooltip(data) {
+                console.log('tooltip==>', data)
+            }
+
+            image.onload = function () {
+                draw(1.0);
+            };
+        };
+    </script>
+
+</head>
+
+<body>
+    <div class="container" >
+        <canvas id="appCanvas" width="640" height="425"></canvas>
+        
+        <button id="zoomInBtn" class="btn" title="Zoom In"> + </button>
+        <button id="zoomOutBtn" class="btn" title="Zoom Out"> - </button>
+        <div class="toolTip" id ="tooltip" style="display: none; position: absolute; top: 0">
+                
+            </div>
+        </div>
+    
+</body>
+
+</html>
