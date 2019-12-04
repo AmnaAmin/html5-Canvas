@@ -30,17 +30,18 @@ const data = [
         dimensions: {}
     }
 ];
-
+var current_scale;
 window.onload = function () {
 
 image = new Image();
-image.src = "./house-map.jpg";
+image.src = "https://raw.githubusercontent.com/AmnaAmin/html5-Canvas/master/house-map.jpg";
 function draw(scale) {
     let canvas = document.getElementById("appCanvas");
     let context = canvas.getContext("2d");
     // clear canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.scale(scale, scale);
+    current_scale = scale
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
     data.forEach(function(item){
         drawPoint(context, item.x, item.y, item.radius, item.id, item.color)
@@ -83,21 +84,19 @@ document.getElementById("zoomOutBtn").addEventListener(
 
 // add Event Listener for click event
 document.getElementById("appCanvas").addEventListener("click", function (e) {
-
-    let outSideX = this.offsetLeft; // left space of out side of canvas
-    let outSideY = this.offsetTop // Top space of out side of canvas
-    let clickedX = e.pageX - outSideX;
-    let clickedY = e.pageY - outSideY;
-
+    let clickedX = e.offsetX;
+    let clickedY = e.offsetY;
+    
     data.forEach(function(item) {
         let m =  item.dimensions
         // for matching position of points
-        if (clickedX < m.right && clickedX > m.left && clickedY > m.top && clickedY < m.bottom) {
+        if (clickedX / current_scale < m.right && clickedX / current_scale > m.left && clickedY / current_scale > m.top && clickedY / current_scale < m.bottom){
+            // displays Tooltip
             let toolTip = document.getElementById("tooltip")
             toolTip.style.display = "block"
             toolTip.textContent = item.detail
-            toolTip.style.top = outSideY + m.top + 60 + 'px'
-            toolTip.style.left = outSideX + m.left + 'px'
+            toolTip.style.top = m.top + 60 + 'px'
+            toolTip.style.left = m.left + 'px'
         }
     })
 
